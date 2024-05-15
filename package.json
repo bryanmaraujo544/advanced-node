@@ -4,18 +4,22 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "build": "rimraf dist && tsc"
+        "build": "rimraf dist && tsc",
+        "start": "node dist/main/api"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@types/module-alias": "^2.0.4",
+        "@types/node": "^20.12.12",
         "typescript": "^5.4.5"
     },
     "engines": {
         "node": "20.x"
     },
     "dependencies": {
+        "module-alias": "^2.2.3",
         "rimraf": "^5.0.7"
     }
 }

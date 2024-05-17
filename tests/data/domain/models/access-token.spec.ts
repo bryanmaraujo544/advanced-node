@@ -6,4 +6,10 @@ describe("AccessToken", () => {
 
         expect(sut).toEqual({ value: "any_value" });
     });
+
+    it("should expires within 1800000 ms", () => {
+        const sut = new AccessToken("any_value");
+
+        expect(AccessToken.expirationInMs).toBe(1800000);
+    });
 });

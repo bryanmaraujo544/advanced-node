@@ -6,7 +6,11 @@
 /** @type {import('jest').Config} */
 const config = {
     // An array of glob patterns indicating a set of files for which coverage information should be collected
-    collectCoverageFrom: ["<rootDir>/src/**/*.ts"],
+    collectCoverageFrom: [
+        "<rootDir>/src/**/*.ts",
+        "!<rootDir>/src/main/**/*",
+        "!<rootDir>/src/**/index.ts",
+    ],
     coverageDirectory: "coverage",
     coverageProvider: "babel",
     moduleNameMapper: {

@@ -1,7 +1,23 @@
 import { HttpGetClient } from "../http";
 import { LoadFacebookUserApi } from "@/data/contracts/apis";
 
-export class FacebookApi {
+type AppToken = {
+    access_token: string;
+};
+
+type UserInfo = {
+    id: string;
+    name: string;
+    email: string;
+};
+
+type DebugToken = {
+    data: {
+        user_id: string;
+    };
+};
+
+export class FacebookApi implements LoadFacebookUserApi {
     private readonly baseUrl = "https://graph.facebook.com";
     constructor(
         private readonly httpClient: HttpGetClient,
@@ -9,8 +25,22 @@ export class FacebookApi {
         private readonly clientSecret: string
     ) {}
 
-    async loadUser(params: LoadFacebookUserApi.Params): Promise<void> {
-        const appToken = await this.httpClient.get({
+    async loadUser(
+        params: LoadFacebookUserApi.Params
+    ): Promise<LoadFacebookUserApi.Result> {
+        const userInfo = await this.getUserInfo({
+            clientToken: params.token,
+        });
+
+        return {
+            facebookId: userInfo.id,
+            name: userInfo.name,
+            email: userInfo.email,
+        };
+    }
+
+    private async getAppToken() {
+        return await this.httpClient.get<AppToken>({
             url: `${this.baseUrl}/oauth/access_token`,
             params: {
                 client_id: this.clientId,
@@ -18,20 +48,29 @@ export class FacebookApi {
                 grant_type: "client_credentials",
             },
         });
+    }
 
-        const debugToken = await this.httpClient.get({
+    private async getDebugToken(params: { clientToken: string }) {
+        const appToken = await this.getAppToken();
+
+        return await this.httpClient.get<DebugToken>({
             url: `${this.baseUrl}/debug_token`,
             params: {
                 access_token: appToken.access_token,
-                input_token: params.token,
+                input_token: params.clientToken,
             },
         });
+    }
 
-        await this.httpClient.get({
+    private async getUserInfo(params: { clientToken: string }) {
+        const debugToken = await this.getDebugToken({
+            clientToken: params.clientToken,
+        });
+        return await this.httpClient.get<UserInfo>({
             url: `${this.baseUrl}/${debugToken.data.user_id}`,
             params: {
                 fields: ["id", "name", "email"].join(","),
-                access_token: params.token,
+                access_token: params.clientToken,
             },
         });
     }

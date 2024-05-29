@@ -13,30 +13,45 @@ class FacebookLoginController {
     ) {}
 
     async handle(httpRequest: any): Promise<HttpResponse> {
-        if (!httpRequest.token) {
+        try {
+            if (!httpRequest.token) {
+                return {
+                    statusCode: 400,
+                    data: new Error("The field token is required"),
+                };
+            }
+
+            const result = await this.facebookAuthentication.perform({
+                token: httpRequest.token,
+            });
+
+            if (result instanceof AuthenticationError) {
+                return {
+                    statusCode: 401,
+                    data: result,
+                };
+            }
+
             return {
-                statusCode: 400,
-                data: new Error("The field token is required"),
+                statusCode: 200,
+                data: {
+                    accessToken: result.value,
+                },
+            };
+        } catch (err: any) {
+            return {
+                statusCode: 500,
+                data: new ServerError(err),
             };
         }
+    }
+}
 
-        const result = await this.facebookAuthentication.perform({
-            token: httpRequest.token,
-        });
-
-        if (result instanceof AuthenticationError) {
-            return {
-                statusCode: 401,
-                data: result,
-            };
-        }
-
-        return {
-            statusCode: 200,
-            data: {
-                accessToken: result.value,
-            },
-        };
+class ServerError extends Error {
+    constructor(error?: Error) {
+        super("Internal server error");
+        this.name = "InternalServerError";
+        this.stack = error?.stack;
     }
 }
 
@@ -106,6 +121,18 @@ describe("FacebookLoginController", () => {
             data: {
                 accessToken: "any_value",
             },
+        });
+    });
+
+    it("should return 500 if authentication throws", async () => {
+        const error = new Error("infra_error");
+
+        facebookAuth.perform.mockRejectedValueOnce(error);
+        const httpResponse = await sut.handle({ token: "any_token_valid" });
+
+        expect(httpResponse).toEqual({
+            statusCode: 500,
+            data: new ServerError(error),
         });
     });
 });

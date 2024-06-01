@@ -9,12 +9,21 @@ import {
 } from "../helpers";
 import { AuthenticationError } from "@/domain/errors";
 
+type HttpRequest = {
+    token: string | undefined | null;
+};
+
+type Model =
+    | Error
+    | {
+          accessToken: string;
+      };
 export class FacebookLoginController {
     constructor(
         private readonly facebookAuthentication: FacebookAuthentication
     ) {}
 
-    async handle(httpRequest: any): Promise<HttpResponse> {
+    async handle(httpRequest: HttpRequest): Promise<HttpResponse<Model>> {
         try {
             if (!httpRequest.token) {
                 return badRequest(new RequiredFieldError("token"));

@@ -1,8 +1,7 @@
 import { FacebookAuthentication } from "@/domain/features";
 import { RequiredFieldError } from "../errors";
-import { HttpResponse, badRequest, unathorized } from "../helpers";
+import { HttpResponse, badRequest, serverError, unathorized } from "../helpers";
 import { AuthenticationError } from "@/domain/errors";
-import { ServerError } from "../errors";
 
 export class FacebookLoginController {
     constructor(
@@ -30,10 +29,7 @@ export class FacebookLoginController {
                 },
             };
         } catch (err: any) {
-            return {
-                statusCode: 500,
-                data: new ServerError(err),
-            };
+            return serverError(err);
         }
     }
 }

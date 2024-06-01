@@ -1,8 +1,3 @@
-export type HttpResponse = {
-    statusCode: number;
-    data: any;
-};
-
 export class ServerError extends Error {
     constructor(error?: Error) {
         super("Internal server error");
@@ -11,14 +6,16 @@ export class ServerError extends Error {
     }
 }
 
-export const badRequest = (error: Error): HttpResponse => ({
-    statusCode: 400,
-    data: error,
-});
-
 export class RequiredFieldError extends Error {
     constructor(fieldName?: string) {
         super(`The field ${fieldName} is required`);
         this.name = "RequiredFieldError";
+    }
+}
+
+export class UnathorizedError extends Error {
+    constructor() {
+        super("Unathorized");
+        this.name = "UnathorizedError";
     }
 }

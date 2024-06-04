@@ -11,12 +11,12 @@ export abstract class Controller {
     }
 
     async handle(httpRequest: any): Promise<HttpResponse> {
-        try {
-            const error = this.validate(httpRequest);
-            if (error) {
-                return badRequest(error);
-            }
+        const error = this.validate(httpRequest);
+        if (error) {
+            return badRequest(error);
+        }
 
+        try {
             return await this.perform(httpRequest);
         } catch (err: any) {
             return serverError(err);

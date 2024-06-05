@@ -17,6 +17,7 @@ const config = {
         "@/tests/(.+)": "<rootDir>/tests/$1",
         "@/(.+)": "<rootDir>/src/$1",
     },
+    testMatch: ["**/*.spec.ts"],
     roots: ["<rootDir>/tests", "<rootDir>/src"],
     transform: {
         "\\.ts$": "ts-jest",

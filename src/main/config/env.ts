@@ -5,4 +5,5 @@ export const env = {
             process.env.FB_CLIENT_SECRET || "d83398bfec0b5f8f5bec380316494c4c",
     },
     port: process.env.PORT || 8080,
+    jwtSecret: process.env.JWT_SECRET || "secret",
 };

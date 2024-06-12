@@ -44,7 +44,7 @@ dependencies:
 
 devDependencies:
   '@jest-mock/express':
-    specifier: ^1.4.4
+    specifier: ^1.4.5
     version: 1.4.5
   '@types/aws-sdk':
     specifier: ^2.7.0

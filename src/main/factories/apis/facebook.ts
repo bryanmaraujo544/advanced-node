@@ -1,5 +1,4 @@
 import { FacebookApi } from "@/infra/apis";
-import { AxiosHttpClient } from "@/infra/http";
 import { env } from "../../config/env";
 import { makeAxiosClient } from "../http";
 

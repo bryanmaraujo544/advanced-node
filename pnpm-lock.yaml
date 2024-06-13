@@ -74,7 +74,7 @@ devDependencies:
     specifier: ^16.7.13
     version: 16.18.97
   '@types/supertest':
-    specifier: ^2.0.11
+    specifier: ^2.0.16
     version: 2.0.16
   '@types/uuid':
     specifier: ^8.3.1
@@ -125,7 +125,7 @@ devDependencies:
     specifier: ^1.9.17
     version: 1.9.17(typeorm@0.2.29)
   supertest:
-    specifier: ^6.1.6
+    specifier: ^6.3.4
     version: 6.3.4
   ts-jest:
     specifier: ^27.0.5

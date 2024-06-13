@@ -5,5 +5,5 @@ import { adaptExpressRouter } from "@/infra/http";
 export default (router: Router): void => {
     const controller = makeFaceboookLoginController();
     const adapter = adaptExpressRouter(controller);
-    router.post("/api/login/facebook", adapter);
+    router.post("/login/facebook", adapter);
 };

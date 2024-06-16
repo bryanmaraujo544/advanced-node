@@ -1,4 +1,4 @@
-import { FacebookAuthenticationService } from "@/data/services";
+import { FacebookAuthenticationService } from "@/domain/services";
 import { env } from "../../config/env";
 import { PgUserAccountRepository } from "@/infra/postgres/repos/user-account";
 import { JwtTokenGenerator } from "@/infra/crypto";

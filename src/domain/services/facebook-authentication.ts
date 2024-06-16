@@ -3,7 +3,7 @@ import { LoadFacebookUserApi } from "../contracts/apis";
 import {
     LoadUserAccountRepository,
     SaveFacebookAccountRepository,
-} from "@/data/contracts/repos";
+} from "@/domain/contracts/repos";
 import { AuthenticationError } from "@/domain/errors";
 import { AccessToken, FacebookAccount } from "@/domain/models";
 import { TokenGenerator } from "../contracts/crypto";

@@ -6,20 +6,20 @@ import {
     SaveFacebookAccountRepository,
     LoadUserAccountRepository,
 } from "@/domain/contracts/repos";
-import { FacebookAuthenticationService } from "@/domain/services";
+import { FacebookAuthenticationUseCase } from "@/domain/use-cases";
 import { AuthenticationError } from "@/domain/entities/errors";
 import { AccessToken, FacebookAccount } from "@/domain/entities";
 import { TokenGenerator } from "@/domain/contracts/crypto";
 
 jest.mock("@/domain/entities/facebook-account");
 
-describe("FacebookAuthenticationService", () => {
+describe("FacebookAuthenticationUseCase", () => {
     let facebookApi: MockProxy<LoadFacebookUserApi>;
     let crypto: MockProxy<TokenGenerator>;
     let userAccountRepo: MockProxy<
         LoadUserAccountRepository & SaveFacebookAccountRepository
     >;
-    let sut: FacebookAuthenticationService;
+    let sut: FacebookAuthenticationUseCase;
 
     let token: string;
 
@@ -45,7 +45,7 @@ describe("FacebookAuthenticationService", () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
-        sut = new FacebookAuthenticationService(
+        sut = new FacebookAuthenticationUseCase(
             facebookApi,
             userAccountRepo,
             crypto

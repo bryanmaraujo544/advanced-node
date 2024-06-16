@@ -1,8 +1,9 @@
-import { FacebookAuthentication } from "@/domain/features";
 import { HttpResponse, ok, unathorized } from "../helpers";
 import { AuthenticationError } from "@/domain/entities/errors";
 import { ValidationBuilder, Validator } from "../validation";
 import { Controller } from "./";
+import { AccessToken } from "@/domain/entities";
+import { FacebookAuthentication } from "@/domain/use-cases";
 
 type HttpRequest = {
     token: string;
@@ -13,6 +14,7 @@ type Output =
     | {
           accessToken: string;
       };
+
 export class FacebookLoginController extends Controller {
     constructor(
         private readonly facebookAuthentication: FacebookAuthentication
@@ -21,7 +23,7 @@ export class FacebookLoginController extends Controller {
     }
 
     async perform(httpRequest: HttpRequest): Promise<HttpResponse<Output>> {
-        const accessToken = await this.facebookAuthentication.perform({
+        const accessToken = await this.facebookAuthentication({
             token: httpRequest.token,
         });
 

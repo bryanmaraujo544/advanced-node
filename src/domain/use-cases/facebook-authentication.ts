@@ -1,4 +1,3 @@
-import { FacebookAuthentication } from "@/domain/features";
 import { LoadFacebookUserApi } from "../contracts/apis";
 import {
     LoadUserAccountRepository,
@@ -8,29 +7,28 @@ import { AuthenticationError } from "@/domain/entities/errors";
 import { AccessToken, FacebookAccount } from "@/domain/entities";
 import { TokenGenerator } from "../contracts/crypto";
 
-export class FacebookAuthenticationUseCase implements FacebookAuthentication {
-    constructor(
-        private readonly facebookApi: LoadFacebookUserApi,
-        private readonly userAccountRepo: LoadUserAccountRepository &
-            SaveFacebookAccountRepository,
-        private readonly crypto: TokenGenerator
-    ) {}
+type Params = { token: string };
+type Result = AccessToken | AuthenticationError;
+export type FacebookAuthentication = (params: Params) => Promise<Result>;
 
-    async perform(
-        params: FacebookAuthentication.Params
-    ): Promise<FacebookAuthentication.Result> {
-        const fbData = await this.facebookApi.loadUser({
+export const setupFacebookAuthentication = (
+    facebookApi: LoadFacebookUserApi,
+    userAccountRepo: LoadUserAccountRepository & SaveFacebookAccountRepository,
+    crypto: TokenGenerator
+): FacebookAuthentication => {
+    return async (params) => {
+        const fbData = await facebookApi.loadUser({
             token: params.token,
         });
         if (fbData) {
-            const accountData = await this.userAccountRepo.load({
+            const accountData = await userAccountRepo.load({
                 email: fbData.email,
             });
             const fbAccount = new FacebookAccount(fbData, accountData);
-            const accountSaved = await this.userAccountRepo.saveWithFacebook(
+            const accountSaved = await userAccountRepo.saveWithFacebook(
                 fbAccount
             );
-            const tokenGenerated = await this.crypto.generateToken({
+            const tokenGenerated = await crypto.generateToken({
                 key: accountSaved.id,
                 expirationInMs: AccessToken.expirationInMs,
             });
@@ -39,5 +37,5 @@ export class FacebookAuthenticationUseCase implements FacebookAuthentication {
         }
 
         return new AuthenticationError();
-    }
-}
+    };
+};

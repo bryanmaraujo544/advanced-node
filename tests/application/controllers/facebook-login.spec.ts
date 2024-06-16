@@ -1,5 +1,4 @@
 import { AuthenticationError } from "@/domain/entities/errors";
-import { FacebookAuthentication } from "@/domain/features";
 import { AccessToken } from "@/domain/entities";
 import { MockProxy, mock } from "jest-mock-extended";
 import { FacebookLoginController } from "@/application/controlllers";
@@ -8,13 +7,13 @@ import { RequiredStringValidator } from "@/application/validation/required-strin
 
 describe("FacebookLoginController", () => {
     let sut: FacebookLoginController;
-    let facebookAuth: MockProxy<FacebookAuthentication>;
+    let facebookAuth: jest.Mock;
     let token: string;
 
     beforeAll(() => {
         token = "any_token";
-        facebookAuth = mock();
-        facebookAuth.perform.mockResolvedValue(new AccessToken("any_value"));
+        facebookAuth = jest.fn();
+        facebookAuth.mockResolvedValue(new AccessToken("any_value"));
     });
     beforeEach(() => {
         sut = new FacebookLoginController(facebookAuth);
@@ -31,14 +30,14 @@ describe("FacebookLoginController", () => {
     it("should call FacebookAuthentication with correct params", async () => {
         await sut.handle({ token: "any_token" });
 
-        expect(facebookAuth.perform).toHaveBeenCalledWith({
+        expect(facebookAuth).toHaveBeenCalledWith({
             token: "any_token",
         });
-        expect(facebookAuth.perform).toHaveBeenCalledTimes(1);
+        expect(facebookAuth).toHaveBeenCalledTimes(1);
     });
 
     it("should return 401 if authentication fails", async () => {
-        facebookAuth.perform.mockResolvedValueOnce(new AuthenticationError());
+        facebookAuth.mockResolvedValueOnce(new AuthenticationError());
         const httpResponse = await sut.handle({ token });
 
         expect(httpResponse).toEqual({
@@ -61,7 +60,7 @@ describe("FacebookLoginController", () => {
     it("should return 500 if authentication throws", async () => {
         const error = new Error("infra_error");
 
-        facebookAuth.perform.mockRejectedValueOnce(error);
+        facebookAuth.mockRejectedValueOnce(error);
         const httpResponse = await sut.handle({ token });
 
         expect(httpResponse).toEqual({

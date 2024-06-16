@@ -1,7 +1,9 @@
 import { Request, RequestHandler, Response } from "express";
 import { Controller } from "@/application/controlllers";
 
-export const adaptExpressRouter = (controller: Controller): RequestHandler => {
+type Adapter = (controller: Controller) => RequestHandler;
+
+export const adaptExpressRouter: Adapter = (controller) => {
     return async (req, res) => {
         const httpResponse = await controller.handle({ ...req.body });
 

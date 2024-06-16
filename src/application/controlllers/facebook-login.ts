@@ -1,6 +1,6 @@
 import { FacebookAuthentication } from "@/domain/features";
 import { HttpResponse, ok, unathorized } from "../helpers";
-import { AuthenticationError } from "@/domain/errors";
+import { AuthenticationError } from "@/domain/entities/errors";
 import { ValidationBuilder, Validator } from "../validation";
 import { Controller } from "./";
 

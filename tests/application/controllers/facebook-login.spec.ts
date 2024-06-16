@@ -1,6 +1,6 @@
-import { AuthenticationError } from "@/domain/errors";
+import { AuthenticationError } from "@/domain/entities/errors";
 import { FacebookAuthentication } from "@/domain/features";
-import { AccessToken } from "@/domain/models";
+import { AccessToken } from "@/domain/entities";
 import { MockProxy, mock } from "jest-mock-extended";
 import { FacebookLoginController } from "@/application/controlllers";
 import { ServerError, UnathorizedError } from "@/application/errors";

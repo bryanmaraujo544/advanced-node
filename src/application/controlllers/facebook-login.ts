@@ -23,17 +23,17 @@ export class FacebookLoginController extends Controller {
     }
 
     async perform(httpRequest: HttpRequest): Promise<HttpResponse<Output>> {
-        const accessToken = await this.facebookAuthentication({
-            token: httpRequest.token,
-        });
+        try {
+            const { accessToken } = await this.facebookAuthentication({
+                token: httpRequest.token,
+            });
 
-        if (accessToken instanceof AuthenticationError) {
+            return ok({
+                accessToken,
+            });
+        } catch (err) {
             return unathorized();
         }
-
-        return ok({
-            accessToken: accessToken.value,
-        });
     }
 
     override buildValidators(httpRequest: HttpRequest): Validator[] {

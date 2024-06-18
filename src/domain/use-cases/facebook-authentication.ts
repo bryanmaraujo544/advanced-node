@@ -8,7 +8,7 @@ import { AccessToken, FacebookAccount } from "@/domain/entities";
 import { TokenGenerator } from "../contracts/crypto";
 
 type Params = { token: string };
-type Result = AccessToken | AuthenticationError;
+type Result = { accessToken: string };
 export type FacebookAuthentication = (params: Params) => Promise<Result>;
 
 export const setupFacebookAuthentication = (
@@ -33,9 +33,9 @@ export const setupFacebookAuthentication = (
                 expirationInMs: AccessToken.expirationInMs,
             });
 
-            return new AccessToken(tokenGenerated);
+            return { accessToken: tokenGenerated };
         }
 
-        return new AuthenticationError();
+        throw new AuthenticationError();
     };
 };

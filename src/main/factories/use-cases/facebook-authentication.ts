@@ -4,15 +4,15 @@ import {
 } from "@/domain/use-cases";
 import { makeFaceboookApi } from "../apis";
 import { makePgUserAccountRepo } from "../repos";
-import { makeJwtTokenGenerator } from "../crypto";
+import { makeJwtTokenHandler } from "../crypto";
 
 export const makeFaceboookAuthentication = (): FacebookAuthentication => {
     const fbApi = makeFaceboookApi();
     const pgUserAccountRepo = makePgUserAccountRepo();
-    const jwtTokenGenerator = makeJwtTokenGenerator();
+    const JwtTokenHandler = makeJwtTokenHandler();
     return setupFacebookAuthentication(
         fbApi,
         pgUserAccountRepo,
-        jwtTokenGenerator
+        JwtTokenHandler
     );
 };

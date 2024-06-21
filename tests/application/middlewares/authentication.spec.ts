@@ -1,15 +1,16 @@
 import { ForbiddenError } from "@/application/errors";
-import { HttpResponse, forbidden } from "@/application/helpers/http";
+import { HttpResponse, forbidden, ok } from "@/application/helpers/http";
 import { RequiredStringValidator } from "@/application/validation";
 import { Authorize } from "@/domain/use-cases/authorize";
 
 type HttpRequest = { authorization: string };
+type Model = Error | { userId: string };
 
 class AuthenticationMiddleware {
     constructor(private readonly authorize: Authorize) {}
     async handle({
         authorization,
-    }: HttpRequest): Promise<HttpResponse<Error> | undefined> {
+    }: HttpRequest): Promise<HttpResponse<Model> | undefined> {
         try {
             const error = new RequiredStringValidator(
                 authorization,
@@ -18,7 +19,9 @@ class AuthenticationMiddleware {
             if (error) {
                 return forbidden();
             }
-            await this.authorize({ token: authorization });
+            const userId = await this.authorize({ token: authorization });
+
+            return ok({ userId });
         } catch {
             return forbidden();
         }
@@ -72,6 +75,17 @@ describe("AuthenticationMiddleware", () => {
         expect(httpResponse).toEqual({
             statusCode: 403,
             data: new ForbiddenError(),
+        });
+    });
+
+    it("should return 200 with userId on success", async () => {
+        authorize.mockResolvedValue("any_user_id");
+
+        const httpResponse = await sut.handle({ authorization });
+
+        expect(httpResponse).toEqual({
+            statusCode: 200,
+            data: { userId: "any_user_id" },
         });
     });
 });

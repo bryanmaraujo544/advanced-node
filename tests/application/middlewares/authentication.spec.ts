@@ -12,19 +12,27 @@ class AuthenticationMiddleware {
         authorization,
     }: HttpRequest): Promise<HttpResponse<Model> | undefined> {
         try {
-            const error = new RequiredStringValidator(
-                authorization,
-                "authorization"
-            ).validate();
-            if (error) {
+            if (!this.validate({ authorization })) {
                 return forbidden();
             }
+
             const userId = await this.authorize({ token: authorization });
 
             return ok({ userId });
         } catch {
             return forbidden();
         }
+    }
+
+    private validate({ authorization }: HttpRequest): boolean {
+        const error = new RequiredStringValidator(
+            authorization,
+            "authorization"
+        ).validate();
+        if (error) {
+            return false;
+        }
+        return true;
     }
 }
 

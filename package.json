@@ -6,6 +6,7 @@
     "scripts": {
         "build": "rimraf dist && tsc -p tsconfig-build.json",
         "start": "node dist/main",
+        "dev": "ts-node-dev --respawn --transpile-only -r dotenv/config --inspect=0.0.0.0:9229 src/main",
         "lint": "eslint .",
         "lint:fix": "pnpm run lint --fix",
         "test": "jest --passWithNoTests --no-cache --runInBand",

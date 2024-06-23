@@ -12,9 +12,11 @@ export type ChangeProfilePicture = (input: {
 
 export const setupChangeProfilePicture: Setup = (fileStorage, crypto) => {
     return async ({ userId, file }) => {
-        await fileStorage.upload({
-            file,
-            key: crypto.uuid({ key: userId }),
-        });
+        if (file) {
+            await fileStorage.upload({
+                file,
+                key: crypto.uuid({ key: userId }),
+            });
+        }
     };
 };

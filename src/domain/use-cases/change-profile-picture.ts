@@ -18,12 +18,13 @@ export const setupChangeProfilePicture: Setup = (
     userProfileRepo
 ) => {
     return async ({ userId, file }) => {
+        let pictureUrl: string | undefined;
         if (file) {
-            const pictureUrl = await fileStorage.upload({
+            pictureUrl = await fileStorage.upload({
                 file,
                 key: crypto.uuid({ key: userId }),
             });
-            await userProfileRepo.savePicture({ pictureUrl });
         }
+        await userProfileRepo.savePicture({ pictureUrl });
     };
 };

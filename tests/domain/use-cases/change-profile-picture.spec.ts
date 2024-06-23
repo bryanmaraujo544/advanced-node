@@ -62,4 +62,16 @@ describe("ChangeProfilePicture", () => {
         });
         expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
     });
+
+    it("should call SaveUserPicture with correct input when file empty", async () => {
+        await sut({
+            userId: "any_id",
+            file: undefined as any,
+        });
+
+        expect(userProfileRepo.savePicture).toHaveBeenCalledWith({
+            pictureUrl: undefined,
+        });
+        expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+    });
 });

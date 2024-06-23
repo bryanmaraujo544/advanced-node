@@ -1,5 +1,5 @@
 export interface UploadFile {
-    upload: (input: UploadFile.Input) => Promise<void>;
+    upload: (input: UploadFile.Input) => Promise<string>;
 }
 export namespace UploadFile {
     export type Input = {

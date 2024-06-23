@@ -5,6 +5,7 @@ import {
     ChangeProfilePicture,
     setupChangeProfilePicture,
 } from "@/domain/use-cases/change-profile-picture";
+import { SaveUserPicture } from "@/domain/contracts/repos/user-profile";
 
 describe("ChangeProfilePicture", () => {
     let uuid: string;
@@ -12,17 +13,20 @@ describe("ChangeProfilePicture", () => {
     let file: Buffer;
     let crypto: MockProxy<UUIDGenerator>;
     let sut: ChangeProfilePicture;
+    let userProfileRepo: MockProxy<SaveUserPicture>;
 
     beforeAll(() => {
         uuid = "any_unique_id";
-        fileStorage = mock<UploadFile>();
+        fileStorage = mock();
         file = Buffer.from("any_buffer");
-        crypto = mock<UUIDGenerator>();
+        crypto = mock();
         crypto.uuid.mockReturnValueOnce(uuid);
+        userProfileRepo = mock();
+        fileStorage.upload.mockResolvedValue("any_url");
     });
 
     beforeEach(() => {
-        sut = setupChangeProfilePicture(fileStorage, crypto);
+        sut = setupChangeProfilePicture(fileStorage, crypto, userProfileRepo);
     });
 
     it("should call UploadFile with correct input", async () => {
@@ -45,5 +49,17 @@ describe("ChangeProfilePicture", () => {
         });
 
         expect(fileStorage.upload).not.toHaveBeenCalled();
+    });
+
+    it("should call SaveUserPicture with correct input", async () => {
+        await sut({
+            userId: "any_id",
+            file,
+        });
+
+        expect(userProfileRepo.savePicture).toHaveBeenCalledWith({
+            pictureUrl: "any_url",
+        });
+        expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
     });
 });

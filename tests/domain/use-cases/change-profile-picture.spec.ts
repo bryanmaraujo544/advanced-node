@@ -1,41 +1,11 @@
 import { MockProxy, mock } from "jest-mock-extended";
+import { UUIDGenerator } from "@/domain/contracts/gateways/uuid";
+import { UploadFile } from "@/domain/contracts/gateways/file-storage";
+import {
+    ChangeProfilePicture,
+    setupChangeProfilePicture,
+} from "@/domain/use-cases/change-profile-picture";
 
-type Setup = (
-    fileStorage: UploadFile,
-    crypto: UUIDGenerator
-) => ChangeProfilePicture;
-type ChangeProfilePicture = (input: {
-    userId: string;
-    file: Buffer;
-}) => Promise<void>;
-
-const setupChangeProfilePicture: Setup = (fileStorage, crypto) => {
-    return async ({ userId, file }) => {
-        await fileStorage.upload({
-            file,
-            key: crypto.uuid({ key: userId }),
-        });
-    };
-};
-
-interface UploadFile {
-    upload: (input: UploadFile.Input) => Promise<void>;
-}
-namespace UploadFile {
-    export type Input = {
-        file: Buffer;
-        key: string;
-    };
-}
-
-interface UUIDGenerator {
-    uuid: (input: UUIDGenerator.Input) => string;
-}
-namespace UUIDGenerator {
-    export type Input = {
-        key: string;
-    };
-}
 describe("ChangeProfilePicture", () => {
     let uuid: string;
     let fileStorage: MockProxy<UploadFile>;
@@ -54,6 +24,7 @@ describe("ChangeProfilePicture", () => {
     beforeEach(() => {
         sut = setupChangeProfilePicture(fileStorage, crypto);
     });
+
     it("should call UploadFile with correct input", async () => {
         await sut({
             userId: "any_id",

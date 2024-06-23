@@ -27,8 +27,10 @@ export const setupChangeProfilePicture: Setup = (
                 file,
                 key: crypto.uuid({ key: userId }),
             });
+        } else {
+            await userProfileRepo.load({ id: userId });
         }
+
         await userProfileRepo.savePicture({ pictureUrl });
-        await userProfileRepo.load({ id: userId });
     };
 };

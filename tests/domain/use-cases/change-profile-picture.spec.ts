@@ -90,4 +90,13 @@ describe("ChangeProfilePicture", () => {
         });
         expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
     });
+
+    it("should NOT call LoadUserProfile when file is sended", async () => {
+        await sut({
+            userId: "any_id",
+            file,
+        });
+
+        expect(userProfileRepo.load).not.toHaveBeenCalled();
+    });
 });

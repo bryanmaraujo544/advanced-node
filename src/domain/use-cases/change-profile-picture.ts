@@ -22,15 +22,28 @@ export const setupChangeProfilePicture: Setup = (
 ) => {
     return async ({ userId, file }) => {
         let pictureUrl: string | undefined;
+        let initials: string | undefined;
+
         if (file) {
             pictureUrl = await fileStorage.upload({
                 file,
                 key: crypto.uuid({ key: userId }),
             });
         } else {
-            await userProfileRepo.load({ id: userId });
+            const user = await userProfileRepo.load({ id: userId });
+
+            if (user?.name) {
+                const firstLetters = user?.name?.match(/\b(.)/g) ?? [];
+                if (firstLetters?.length > 1) {
+                    initials = `${firstLetters
+                        .shift()
+                        ?.toUpperCase()}${firstLetters.pop()?.toUpperCase()}`;
+                } else {
+                    initials = user?.name?.substring(0, 2)?.toUpperCase();
+                }
+            }
         }
 
-        await userProfileRepo.savePicture({ pictureUrl });
+        await userProfileRepo.savePicture({ pictureUrl, initials });
     };
 };

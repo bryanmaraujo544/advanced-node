@@ -26,6 +26,9 @@ describe("ChangeProfilePicture", () => {
         crypto.uuid.mockReturnValueOnce(uuid);
         userProfileRepo = mock();
         fileStorage.upload.mockResolvedValue("any_url");
+        userProfileRepo.load.mockResolvedValue({
+            name: "Rodrigo da Silva Manguinho",
+        });
     });
 
     beforeEach(() => {
@@ -75,6 +78,75 @@ describe("ChangeProfilePicture", () => {
 
         expect(userProfileRepo.savePicture).toHaveBeenCalledWith({
             pictureUrl: undefined,
+            initials: "RM",
+        });
+        expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+    });
+
+    it("should call SaveUserPicture with correct input when file empty", async () => {
+        userProfileRepo.load.mockResolvedValueOnce({
+            name: "rodrigo da silva manguinho",
+        });
+
+        await sut({
+            userId: "any_id",
+            file: undefined,
+        });
+
+        expect(userProfileRepo.savePicture).toHaveBeenCalledWith({
+            pictureUrl: undefined,
+            initials: "RM",
+        });
+        expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+    });
+
+    it("should send initials with first letters of first name if there is no surname", async () => {
+        userProfileRepo.load.mockResolvedValueOnce({
+            name: "rodrigo",
+        });
+
+        await sut({
+            userId: "any_id",
+            file: undefined,
+        });
+
+        expect(userProfileRepo.savePicture).toHaveBeenCalledWith({
+            pictureUrl: undefined,
+            initials: "RO",
+        });
+        expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+    });
+
+    it("should send initials with first letter of first name has only one letter", async () => {
+        userProfileRepo.load.mockResolvedValueOnce({
+            name: "r",
+        });
+
+        await sut({
+            userId: "any_id",
+            file: undefined,
+        });
+
+        expect(userProfileRepo.savePicture).toHaveBeenCalledWith({
+            pictureUrl: undefined,
+            initials: "R",
+        });
+        expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
+    });
+
+    it("should send initials with first letter of first name has only one letter", async () => {
+        userProfileRepo.load.mockResolvedValueOnce({
+            name: undefined,
+        });
+
+        await sut({
+            userId: "any_id",
+            file: undefined,
+        });
+
+        expect(userProfileRepo.savePicture).toHaveBeenCalledWith({
+            pictureUrl: undefined,
+            initials: undefined,
         });
         expect(userProfileRepo.savePicture).toHaveBeenCalledTimes(1);
     });

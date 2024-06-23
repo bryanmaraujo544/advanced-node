@@ -4,12 +4,13 @@ export interface SaveUserPicture {
 
 export namespace SaveUserPicture {
     export type Input = {
-        pictureUrl: string | undefined;
+        pictureUrl?: string;
+        initials?: string;
     };
 }
 
 export interface LoadUserProfile {
-    load: (params: LoadUserProfile.Params) => Promise<void>;
+    load: (params: LoadUserProfile.Params) => Promise<LoadUserProfile.Result>;
 }
 
 export namespace LoadUserProfile {
@@ -20,7 +21,6 @@ export namespace LoadUserProfile {
     export type Result =
         | undefined
         | {
-              id: string;
               name?: string;
           };
 }

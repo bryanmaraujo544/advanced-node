@@ -1,11 +1,8 @@
 import { mocked } from "jest-mock";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { LoadFacebookUserApi } from "@/domain/contracts/apis";
-import {
-    SaveFacebookAccountRepository,
-    LoadUserAccountRepository,
-} from "@/domain/contracts/repos";
+import { LoadFacebookUser } from "@/domain/contracts/gateways";
+import { SaveFacebookAccount, LoadUserAccount } from "@/domain/contracts/repos";
 import {
     FacebookAuthentication,
     setupFacebookAuthentication,
@@ -17,11 +14,9 @@ import { TokenGenerator } from "@/domain/contracts/crypto";
 jest.mock("@/domain/entities/facebook-account");
 
 describe("FacebookAuthenticationUseCase", () => {
-    let facebookApi: MockProxy<LoadFacebookUserApi>;
+    let facebookApi: MockProxy<LoadFacebookUser>;
     let crypto: MockProxy<TokenGenerator>;
-    let userAccountRepo: MockProxy<
-        LoadUserAccountRepository & SaveFacebookAccountRepository
-    >;
+    let userAccountRepo: MockProxy<LoadUserAccount & SaveFacebookAccount>;
     let sut: FacebookAuthentication;
 
     let token: string;
@@ -51,7 +46,7 @@ describe("FacebookAuthenticationUseCase", () => {
         sut = setupFacebookAuthentication(facebookApi, userAccountRepo, crypto);
     });
 
-    it("should call LoadFacebookUserApi with correct params", async () => {
+    it("should call LoadFacebookUser with correct params", async () => {
         await sut({ token });
 
         expect(facebookApi.loadUser).toHaveBeenCalledWith({
@@ -60,7 +55,7 @@ describe("FacebookAuthenticationUseCase", () => {
         expect(facebookApi.loadUser).toHaveBeenCalledTimes(1);
     });
 
-    it("should throw AuthenticationError when LoadFacebookUserApi returns undefined", async () => {
+    it("should throw AuthenticationError when LoadFacebookUser returns undefined", async () => {
         facebookApi.loadUser.mockResolvedValueOnce(undefined);
 
         const authResult = sut({ token });
@@ -68,7 +63,7 @@ describe("FacebookAuthenticationUseCase", () => {
         expect(authResult).rejects.toThrow(new AuthenticationError());
     });
 
-    it("should call LoadUserAccountRepo when LoadFacebookUserApi returns data", async () => {
+    it("should call LoadUserAccountRepo when LoadFacebookUser returns data", async () => {
         await sut({ token });
         expect(userAccountRepo.load).toHaveBeenCalledWith({
             email: "any_fb_email",
@@ -76,7 +71,7 @@ describe("FacebookAuthenticationUseCase", () => {
         expect(userAccountRepo.load).toHaveBeenCalledTimes(1);
     });
 
-    it("should call SaveFacebookAccountRepository with FacebookAcount", async () => {
+    it("should call SaveFacebookAccount with FacebookAcount", async () => {
         // here the purpose is just test the integration between facebookAuthenticationService and
         //  FacebookAccountModel
         // I'm just testing if the FacebookAccountModel is being called with the correct data
@@ -109,14 +104,14 @@ describe("FacebookAuthenticationUseCase", () => {
         expect(authResult).toEqual({ accessToken: "any_generated_token" });
     });
 
-    it("should rethrow if LoadFacebookUserApi throws", async () => {
+    it("should rethrow if LoadFacebookUser throws", async () => {
         facebookApi.loadUser.mockRejectedValueOnce(new Error("fb_error"));
         const authResultPromise = sut({ token });
 
         expect(authResultPromise).rejects.toThrow(new Error("fb_error"));
     });
 
-    it("should rethrow if LoadUserAccountRepository throws", async () => {
+    it("should rethrow if LoadUserAccount throws", async () => {
         userAccountRepo.load.mockRejectedValueOnce(
             new Error("load_user_error")
         );
@@ -125,7 +120,7 @@ describe("FacebookAuthenticationUseCase", () => {
         expect(authResultPromise).rejects.toThrow(new Error("load_user_error"));
     });
 
-    it("should rethrow if SaveFacebookAccountRepository throws", async () => {
+    it("should rethrow if SaveFacebookAccount throws", async () => {
         userAccountRepo.saveWithFacebook.mockRejectedValueOnce(
             new Error("save_user_error")
         );

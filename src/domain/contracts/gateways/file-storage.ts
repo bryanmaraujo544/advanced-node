@@ -7,3 +7,12 @@ export namespace UploadFile {
         key: string;
     };
 }
+
+export interface DeleteFile {
+    delete: (input: DeleteFile.Input) => Promise<void>;
+}
+export namespace DeleteFile {
+    export type Input = {
+        key: string;
+    };
+}

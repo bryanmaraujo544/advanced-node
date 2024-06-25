@@ -46,6 +46,7 @@ export const setupChangeProfilePicture: Setup = (
             if (file) {
                 await fileStorage.delete({ key: userId });
             }
+            throw new Error();
         }
 
         return {

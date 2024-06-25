@@ -14,7 +14,10 @@ type Setup = (
 export type ChangeProfilePicture = (input: {
     userId: string;
     file: Buffer | undefined;
-}) => Promise<void>;
+}) => Promise<{
+    pictureUrl?: string;
+    initials?: string;
+}>;
 
 export const setupChangeProfilePicture: Setup = (
     fileStorage,
@@ -38,5 +41,10 @@ export const setupChangeProfilePicture: Setup = (
         userProfile.setPicture(data);
 
         await userProfileRepo.savePicture(userProfile);
+
+        return {
+            pictureUrl: userProfile.pictureUrl,
+            initials: userProfile.initials,
+        };
     };
 };

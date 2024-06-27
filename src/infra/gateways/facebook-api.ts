@@ -1,4 +1,4 @@
-import { HttpGetClient } from "../http";
+import { HttpGetClient } from "./";
 import { LoadFacebookUser } from "@/domain/contracts/gateways";
 
 type AppToken = {

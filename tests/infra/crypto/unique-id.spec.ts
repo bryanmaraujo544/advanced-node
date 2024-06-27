@@ -1,5 +1,4 @@
-import { UUIDGenerator } from "@/domain/contracts/gateways/uuid";
-import { UniqueId } from "@/infra/crypto/index";
+import { UniqueId } from "@/infra/gateways";
 
 describe("UniqueId", () => {
     it("should call uuid.v4", () => {

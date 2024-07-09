@@ -1,34 +1,8 @@
-import { UploadFile } from "@/domain/contracts/gateways/file-storage";
+import { AwsS3FileStorage } from "@/domain/contracts/gateways/aws-s3-file-storage";
 import { config, S3 } from "aws-sdk";
 import { mocked } from "jest-mock";
 
 jest.mock("aws-sdk");
-
-class AwsS3FileStorage {
-    constructor(
-        accessKey: string,
-        secret: string,
-        private readonly bucket: string
-    ) {
-        config.update({
-            credentials: {
-                accessKeyId: accessKey,
-                secretAccessKey: secret,
-            },
-        });
-    }
-
-    async upload({ key, file }: UploadFile.Input): Promise<void> {
-        const s3 = new S3();
-
-        s3.putObject({
-            Bucket: this.bucket,
-            Key: key,
-            Body: file,
-            ACL: "public-read",
-        }).promise();
-    }
-}
 
 describe("AwsS3FileStorage", () => {
     let sut: AwsS3FileStorage;
@@ -39,13 +13,16 @@ describe("AwsS3FileStorage", () => {
     let key: string;
     let putObjectPromiseSpy: jest.Mock;
     let putObjectSpy: jest.Mock;
+
     beforeAll(() => {
         accessKey = "any_access_key";
         secret = "any_secret";
         bucket = "any_bucket";
         file = Buffer.from("any_file");
         key = "any_key";
+    });
 
+    beforeEach(() => {
         putObjectPromiseSpy = jest.fn();
         putObjectSpy = jest
             .fn()
@@ -55,9 +32,7 @@ describe("AwsS3FileStorage", () => {
                 putObject: putObjectSpy,
             }))
         );
-    });
 
-    beforeEach(() => {
         sut = new AwsS3FileStorage(accessKey, secret, bucket);
     });
 
@@ -85,5 +60,23 @@ describe("AwsS3FileStorage", () => {
         });
         expect(putObjectSpy).toHaveBeenCalledTimes(1);
         expect(putObjectPromiseSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should return imageUrl", async () => {
+        const imageUrl = await sut.upload({
+            key,
+            file,
+        });
+
+        expect(imageUrl).toBe(`https://${bucket}.s3.amazonaws.com/${key}`);
+    });
+
+    it("should return encoded imageUrl", async () => {
+        const imageUrl = await sut.upload({
+            key: "any key",
+            file,
+        });
+
+        expect(imageUrl).toBe(`https://${bucket}.s3.amazonaws.com/any%20key`);
     });
 });

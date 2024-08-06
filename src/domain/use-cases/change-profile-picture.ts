@@ -13,7 +13,7 @@ type Setup = (
 ) => ChangeProfilePicture;
 export type ChangeProfilePicture = (input: {
     userId: string;
-    file: Buffer | undefined;
+    file?: Buffer | undefined;
 }) => Promise<{
     pictureUrl?: string;
     initials?: string;

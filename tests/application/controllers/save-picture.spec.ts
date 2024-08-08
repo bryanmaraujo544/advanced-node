@@ -19,6 +19,10 @@ class SavePictureController {
             return badRequest(new InvalidMimeTypeError(["png", "jpeg"]));
         }
 
+        if (file.buffer.length > 5 * 1024 * 1024) {
+            return badRequest(new MaxFileSizeError(5));
+        }
+
         return { data: null, statusCode: 200 };
     }
 }
@@ -27,6 +31,13 @@ class InvalidMimeTypeError extends Error {
     constructor(allowed: string[]) {
         super(`Unsupported file type. Allowed types: ${allowed.join(",")}`);
         this.name = "InvalidMimeTypeError";
+    }
+}
+
+class MaxFileSizeError extends Error {
+    constructor(sizeInMb: number) {
+        super(`File size must be lower than ${sizeInMb}MB`);
+        this.name = "MaxFileSizeError";
     }
 }
 
@@ -105,6 +116,18 @@ describe("SavePictureController", () => {
 
         expect(httpResponse).toMatchObject({
             statusCode: 200,
+        });
+    });
+
+    it("should return 400 if file size is bigger than 5MB", async () => {
+        const invalidBuffer = Buffer.alloc(6 * 1024 * 1024);
+        const httpResponse = await sut.handle({
+            file: { buffer: invalidBuffer, mimeType: "image/jpeg" },
+        });
+
+        expect(httpResponse).toEqual({
+            statusCode: 400,
+            data: new MaxFileSizeError(5),
         });
     });
 });

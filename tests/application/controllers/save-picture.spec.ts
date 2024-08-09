@@ -1,10 +1,15 @@
 import { RequiredFieldError } from "@/application/errors";
 import { HttpResponse, badRequest } from "@/application/helpers";
+import { ChangeProfilePicture } from "@/domain/use-cases/change-profile-picture";
 
-type HttpRequest = { file: { buffer: Buffer; mimeType: string } };
+type HttpRequest = {
+    file: { buffer: Buffer; mimeType: string };
+    userId: string;
+};
 type Model = Error | null;
 
 class SavePictureController {
+    constructor(private readonly changeProfilePicture: ChangeProfilePicture) {}
     async handle({ file }: HttpRequest): Promise<HttpResponse<Model>> {
         if (!file) {
             return badRequest(new RequiredFieldError("file"));
@@ -23,6 +28,10 @@ class SavePictureController {
             return badRequest(new MaxFileSizeError(5));
         }
 
+        await this.changeProfilePicture({
+            userId: "any_user_id",
+            file: file.buffer,
+        });
         return { data: null, statusCode: 200 };
     }
 }
@@ -44,21 +53,26 @@ class MaxFileSizeError extends Error {
 describe("SavePictureController", () => {
     let sut: SavePictureController;
     let buffer: Buffer;
-    let file: { buffer: Buffer };
+    let file: { buffer: Buffer; mimeType: string };
+    let userId: string;
     let mimeType: string;
+    let changeProfilePicture: jest.Mock;
 
     beforeAll(() => {
         buffer = Buffer.from("any_buffer");
-        file = { buffer };
+        file = { buffer, mimeType: "image/png" };
         mimeType = "image/png";
+        changeProfilePicture = jest.fn();
+        userId = "any_user_id";
     });
     beforeEach(() => {
-        sut = new SavePictureController();
+        sut = new SavePictureController(changeProfilePicture);
     });
 
     it("should return 400 if file is null", async () => {
         const httpResponse = await sut.handle({
             file: undefined as any,
+            userId,
         });
 
         expect(httpResponse).toEqual({
@@ -70,6 +84,7 @@ describe("SavePictureController", () => {
     it("should return 400 if file is empty", async () => {
         const httpResponse = await sut.handle({
             file: { buffer: Buffer.from(""), mimeType },
+            userId,
         });
 
         expect(httpResponse).toEqual({
@@ -81,6 +96,7 @@ describe("SavePictureController", () => {
     it("should return 400 if file type is invalid", async () => {
         const httpResponse = await sut.handle({
             file: { buffer, mimeType: "invalid_type" },
+            userId,
         });
 
         expect(httpResponse).toEqual({
@@ -92,6 +108,7 @@ describe("SavePictureController", () => {
     it("should NOT return 400 if file type is valid", async () => {
         const httpResponse = await sut.handle({
             file: { buffer, mimeType: "image/jpg" },
+            userId,
         });
 
         expect(httpResponse).toMatchObject({
@@ -102,6 +119,7 @@ describe("SavePictureController", () => {
     it("should NOT return 400 if file type is valid", async () => {
         const httpResponse = await sut.handle({
             file: { buffer, mimeType: "image/jpeg" },
+            userId,
         });
 
         expect(httpResponse).toMatchObject({
@@ -112,6 +130,7 @@ describe("SavePictureController", () => {
     it("should NOT return 400 if file type is valid", async () => {
         const httpResponse = await sut.handle({
             file: { buffer, mimeType: "image/jpeg" },
+            userId,
         });
 
         expect(httpResponse).toMatchObject({
@@ -123,11 +142,25 @@ describe("SavePictureController", () => {
         const invalidBuffer = Buffer.alloc(6 * 1024 * 1024);
         const httpResponse = await sut.handle({
             file: { buffer: invalidBuffer, mimeType: "image/jpeg" },
+            userId,
         });
 
         expect(httpResponse).toEqual({
             statusCode: 400,
             data: new MaxFileSizeError(5),
         });
+    });
+
+    it("should call ChangeProfilePicture with correct input", async () => {
+        const httpResponse = await sut.handle({
+            file,
+            userId,
+        });
+
+        expect(changeProfilePicture).toHaveBeenCalledWith({
+            userId,
+            file: buffer,
+        });
+        expect(changeProfilePicture).toHaveBeenCalledTimes(1);
     });
 });

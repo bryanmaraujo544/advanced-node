@@ -1,55 +1,9 @@
-import { RequiredFieldError } from "@/application/errors";
-import { HttpResponse, badRequest, ok } from "@/application/helpers";
-import { ChangeProfilePicture } from "@/domain/use-cases/change-profile-picture";
-
-type HttpRequest = {
-    file: { buffer: Buffer; mimeType: string };
-    userId: string;
-};
-type Model = Error | { initials?: string; pictureUrl?: string };
-
-class SavePictureController {
-    constructor(private readonly changeProfilePicture: ChangeProfilePicture) {}
-    async handle({ file }: HttpRequest): Promise<HttpResponse<Model>> {
-        if (!file) {
-            return badRequest(new RequiredFieldError("file"));
-        }
-
-        if (file.buffer.length === 0) {
-            return badRequest(new RequiredFieldError("file"));
-        }
-
-        const validTypes = ["image/png", "image/jpg", "image/jpeg"];
-        if (!validTypes.includes(file.mimeType)) {
-            return badRequest(new InvalidMimeTypeError(["png", "jpeg"]));
-        }
-
-        if (file.buffer.length > 5 * 1024 * 1024) {
-            return badRequest(new MaxFileSizeError(5));
-        }
-
-        const data = await this.changeProfilePicture({
-            userId: "any_user_id",
-            file: file.buffer,
-        });
-
-        return ok(data);
-    }
-}
-
-class InvalidMimeTypeError extends Error {
-    constructor(allowed: string[]) {
-        super(`Unsupported file type. Allowed types: ${allowed.join(",")}`);
-        this.name = "InvalidMimeTypeError";
-    }
-}
-
-class MaxFileSizeError extends Error {
-    constructor(sizeInMb: number) {
-        super(`File size must be lower than ${sizeInMb}MB`);
-        this.name = "MaxFileSizeError";
-    }
-}
+import {
+    InvalidMimeTypeError,
+    MaxFileSizeError,
+    RequiredFieldError,
+} from "@/application/errors";
+import { SavePictureController } from "@/application/controlllers/save-picture";
 
 describe("SavePictureController", () => {
     let sut: SavePictureController;

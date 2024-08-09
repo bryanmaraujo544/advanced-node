@@ -1,12 +1,12 @@
 import { RequiredFieldError } from "@/application/errors";
-import { HttpResponse, badRequest } from "@/application/helpers";
+import { HttpResponse, badRequest, ok } from "@/application/helpers";
 import { ChangeProfilePicture } from "@/domain/use-cases/change-profile-picture";
 
 type HttpRequest = {
     file: { buffer: Buffer; mimeType: string };
     userId: string;
 };
-type Model = Error | null;
+type Model = Error | { initials?: string; pictureUrl?: string };
 
 class SavePictureController {
     constructor(private readonly changeProfilePicture: ChangeProfilePicture) {}
@@ -28,11 +28,12 @@ class SavePictureController {
             return badRequest(new MaxFileSizeError(5));
         }
 
-        await this.changeProfilePicture({
+        const data = await this.changeProfilePicture({
             userId: "any_user_id",
             file: file.buffer,
         });
-        return { data: null, statusCode: 200 };
+
+        return ok(data);
     }
 }
 
@@ -62,7 +63,10 @@ describe("SavePictureController", () => {
         buffer = Buffer.from("any_buffer");
         file = { buffer, mimeType: "image/png" };
         mimeType = "image/png";
-        changeProfilePicture = jest.fn();
+        changeProfilePicture = jest.fn().mockResolvedValue({
+            initial: "any_initials",
+            pictureUrl: "any_url",
+        });
         userId = "any_user_id";
     });
     beforeEach(() => {
@@ -162,5 +166,17 @@ describe("SavePictureController", () => {
             file: buffer,
         });
         expect(changeProfilePicture).toHaveBeenCalledTimes(1);
+    });
+
+    it("should return 200 with valid data", async () => {
+        const httpResponse = await sut.handle({ file, userId });
+
+        expect(httpResponse).toEqual({
+            statusCode: 200,
+            data: {
+                initial: "any_initials",
+                pictureUrl: "any_url",
+            },
+        });
     });
 });

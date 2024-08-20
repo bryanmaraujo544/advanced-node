@@ -9,3 +9,15 @@ export class RequiredValidator {
         }
     }
 }
+
+export class RequiredBufferValidator extends RequiredValidator {
+    constructor(readonly value: Buffer, readonly fieldName: string) {
+        super(value, fieldName);
+    }
+
+    validate(): Error | undefined {
+        if (this.value.length === 0) {
+            return new RequiredFieldError(this.fieldName);
+        }
+    }
+}

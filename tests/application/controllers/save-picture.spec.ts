@@ -4,6 +4,7 @@ import {
     RequiredFieldError,
 } from "@/application/errors";
 import { SavePictureController } from "@/application/controlllers/save-picture";
+import { Controller } from "@/application/controlllers";
 
 describe("SavePictureController", () => {
     let sut: SavePictureController;
@@ -25,6 +26,14 @@ describe("SavePictureController", () => {
     });
     beforeEach(() => {
         sut = new SavePictureController(changeProfilePicture);
+    });
+
+    it("should extendController", async () => {
+        await sut.handle({
+            file: undefined as any,
+            userId,
+        });
+        expect(sut).toBeInstanceOf(Controller);
     });
 
     it("should return 400 if file is null", async () => {

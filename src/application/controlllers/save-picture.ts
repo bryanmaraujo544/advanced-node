@@ -5,6 +5,7 @@ import {
     RequiredFieldError,
 } from "../errors";
 import { HttpResponse, badRequest, ok } from "../helpers";
+import { Controller } from "./controller";
 
 type HttpRequest = {
     file: { buffer: Buffer; mimeType: string };
@@ -12,9 +13,12 @@ type HttpRequest = {
 };
 type Model = Error | { initials?: string; pictureUrl?: string };
 
-export class SavePictureController {
-    constructor(private readonly changeProfilePicture: ChangeProfilePicture) {}
-    async handle({ file }: HttpRequest): Promise<HttpResponse<Model>> {
+export class SavePictureController extends Controller {
+    constructor(private readonly changeProfilePicture: ChangeProfilePicture) {
+        super();
+    }
+
+    async perform({ file }: HttpRequest): Promise<HttpResponse<Model>> {
         if (!file) {
             return badRequest(new RequiredFieldError("file"));
         }

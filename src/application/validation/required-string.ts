@@ -1,10 +1,13 @@
 import { RequiredFieldError } from "../errors";
+import { RequiredValidator } from "./required";
 
-export class RequiredStringValidator {
+export class RequiredStringValidator extends RequiredValidator {
     constructor(
-        private readonly value: string,
-        private readonly fieldName: string
-    ) {}
+        override readonly value: string,
+        override readonly fieldName: string
+    ) {
+        super(value, fieldName);
+    }
 
     validate(): Error | undefined {
         if (!this.value) {

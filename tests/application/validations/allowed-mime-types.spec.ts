@@ -1,20 +1,5 @@
 import { InvalidMimeTypeError } from "@/application/errors";
-
-type Extension = "png" | "jpg";
-
-class AllowedMimeTypes {
-    constructor(
-        private readonly allowed: Extension[],
-        private readonly value: string
-    ) {}
-
-    validate(): Error | undefined {
-        if (this.allowed.includes("png") && this.value !== "image/png") {
-            return new InvalidMimeTypeError(this.allowed);
-        }
-        return undefined;
-    }
-}
+import { AllowedMimeTypes } from "@/application/validation/allowed-mime-types";
 
 describe("AllowedMimeTypes", () => {
     it("should return InvalidMimeTypeError if value is invalid", () => {
@@ -26,6 +11,20 @@ describe("AllowedMimeTypes", () => {
 
     it("should return undefined if value is valid", () => {
         const sut = new AllowedMimeTypes(["png"], "image/png");
+
+        const error = sut.validate();
+        expect(error).toBeUndefined();
+    });
+
+    it("should return undefined if value is valid", () => {
+        const sut = new AllowedMimeTypes(["jpg"], "image/jpg");
+
+        const error = sut.validate();
+        expect(error).toBeUndefined();
+    });
+
+    it("should return undefined if value is valid", () => {
+        const sut = new AllowedMimeTypes(["jpg"], "image/jpeg");
 
         const error = sut.validate();
         expect(error).toBeUndefined();

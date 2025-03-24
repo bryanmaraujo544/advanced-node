@@ -16,6 +16,8 @@ export abstract class Controller {
             return badRequest(error);
         }
 
+        console.log('test';
+
         try {
             return await this.perform(httpRequest);
         } catch (err: any) {
